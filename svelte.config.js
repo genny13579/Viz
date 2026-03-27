@@ -15,7 +15,7 @@ const config = {
 			fallback: '404.html'
 		}),
 		paths: {
-			base: process.argv.includes('dev') ? '' : '/vizA0'
+			base: process.argv.includes('dev') ? '' : '/Viz'
 		}
 	}
 };
