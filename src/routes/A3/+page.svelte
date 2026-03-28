@@ -57,25 +57,21 @@
     //   - Count how many movies belong to each genre (Comedy, Romance, Drama)
     //   - Build a TStackRow[] array sorted by year
     async function loadCsv() {
-        // 1. Load the data
     const rawData = await d3.csv("summer_movies.csv");
 
     const yearMap = new Map();
     const targetGenres = ["Comedy", "Romance", "Drama"];
 
     rawData.forEach(d => {
-        // 2. Clean the Year (handles "1946.0" or "1946")
-        if (!d.year) return; // Skip rows with missing years
+        if (!d.year) return;
         const yearStr = Math.floor(+d.year).toString();
 
-        // 3. Initialize the row if it's the first time we see this year
         if (!yearMap.has(yearStr)) {
             yearMap.set(yearStr, { year: yearStr, Comedy: 0, Romance: 0, Drama: 0});
         }
 
         const row = yearMap.get(yearStr);
         
-        // 4. Handle multiple genres in one string (e.g., "Comedy,Drama")
         if (d.genres) {
             const movieGenres = d.genres.split(',').map(g => g.trim());
             
@@ -87,7 +83,7 @@
         }
     });
 
-    // 5. Convert to array and sort chronologically
+    //Convert to array and sort chronologically
     stackData = Array.from(yearMap.values())
         .sort((a, b) => (+a.year) - (+b.year));
 
@@ -227,37 +223,7 @@
                 }
             }
         ];
-        /*const birdModels = [
-            {
-                path: "3d/Flamingo.glb", // TODO: replace with your model
-                speed: 350,
-                duration: 1,
-                x: 300 - Math.random() * 500,
-                y: FLOOR + 550,
-                z: 100,
-                scale: 2,
-            },
-            {
-                path: "3d/Dice.glb", // TODO: replace with your model
-                speed: 350,
-                duration: 1,
-                x: 300 - Math.random() * 500,
-                y: FLOOR + 550,
-                z: -100,
-                scale: 0.1,
-            },
-            {
-                path: "3d/paintKitMini.glb", // TODO: replace with your model
-                speed: 350,
-                duration: 0.5,
-                x: 500 - Math.random() * 500,
-                y: FLOOR + 500,
-                z: 700,
-                scale: 110.0,
-            },
-        ];*/
         mixer = loadModels(linearAssets, scene, mixer, morphs);
-console.log(linearAssets)
         // Load horse models (orbit around data)
         horseMixer = new THREE.AnimationMixer(scene);
         console.log(horseMixer)
@@ -274,24 +240,23 @@ console.log(linearAssets)
         customModels.forEach(config => {
             const loader = new GLTFLoader();
             loader.load(config.path, (gltf) => {
-                // Use your normalization helper to fix the "invisible/huge" issue [cite: 8]
                 const model = normalizeModel(gltf.scene, config.targetSize);
                 
-                model.position.set(-900, config.y, 0); // Start off-screen
+                model.position.set(-900, config.y, 0);
                 model.userData.speed = config.speed;
                 
                 scene.add(model);
-                morphs.push(model as any); // Add to your animation loop 
+                morphs.push(model as any);
             });
         });
         const hoppingAssets = [
                 {
-                    path: "3d/penguin.glb", // Replace with your file
+                    path: "3d/penguin.glb",
                     targetSize: 100,
                     x: 500,
                     z: 200,
-                    hopHeight: 50,  // How high it jumps
-                    hopSpeed: 4     // How fast it jumps
+                    hopHeight: 50,  
+                    hopSpeed: 4   
                 }
         ];
         
@@ -308,7 +273,7 @@ console.log(linearAssets)
                 });
 
                 if (mesh) {
-                    mesh.scale.set(500, 500, 500); // Try a larger start scale
+                    mesh.scale.set(500, 500, 500); 
                 mesh.castShadow = true;
 
                 mesh.userData.angle = config.startAngle;
@@ -329,21 +294,19 @@ console.log(linearAssets)
         hoppingAssets.forEach(config => {
             const gltfLoader = new GLTFLoader();
             gltfLoader.load(config.path, (gltf) => {
-                // Normalize handles the targetSize/maxDim calculation for you [cite: 8, 11]
                 const model = normalizeModel(gltf.scene, config.targetSize);
                 
-                model.position.set(config.x, FLOOR, config.z); //[cite: 70]
+                model.position.set(config.x, FLOOR, config.z);
                 
-                // Save the data to the model itself!
                 model.userData = { 
                     baseY: FLOOR, 
                     hopHeight: config.hopHeight, 
                     hopSpeed: config.hopSpeed,
-                    baseScaleY: model.scale.y // This "captures" the scale for later [cite: 11]
+                    baseScaleY: model.scale.y
                 };
                 
                 scene.add(model);
-                hoppingModels.push(model); //[cite: 72]
+                hoppingModels.push(model); 
             });
         });
         // === END TODO-2 ===
@@ -370,11 +333,11 @@ console.log(linearAssets)
     function createGenreGeometry(genre: string): THREE.BufferGeometry {
         switch (genre) {
         case "Comedy":
-            return new THREE.TorusGeometry(5, 2, 8, 16); // A "donut" shape
+            return new THREE.TorusGeometry(5, 2, 8, 16); // donut
         case "Romance":
-            return new THREE.SphereGeometry(6, 16, 16);  // A smooth sphere
+            return new THREE.SphereGeometry(6, 16, 16);  // sphere
         case "Drama":
-            return new THREE.ConeGeometry(6, 12, 4);     // A pyramid/cone
+            return new THREE.ConeGeometry(6, 12, 4);     // cone
         default:
             return new THREE.BoxGeometry(10, 10, 10);
         }
@@ -391,7 +354,7 @@ console.log(linearAssets)
             color: genreColors[genre],
             metalness: 0.2,
             roughness: 0.1,
-            transmission: 0.5, // Adds a slightly "glassy" look
+            transmission: 0.5,
             thickness: 0.5
         });
     }
@@ -405,11 +368,13 @@ console.log(linearAssets)
     //
     function createUnits(scene: THREE.Scene, font: Font) {
         if (stackData.length === 0) return;
-
+    
         const barMaxWidth = Math.min(stackData.length * 80, 1400);
-        const unitSize = 12; // Vertical space each object takes up
+        const unitSize = 10; // height of each unit object
+        
 
-        const xScale = d3.scaleBand()
+        const xScale = d3
+            .scaleBand()
             .domain(stackData.map((d) => d.year))
             .range([-barMaxWidth / 2, barMaxWidth / 2])
             .padding(0.1);
@@ -419,7 +384,7 @@ console.log(linearAssets)
         stackData.forEach((row) => {
             const xPos = xScale(row.year)! + bandwidth / 2;
             let currentY = FLOOR;
-
+            
             genres.forEach((genre) => {
                 const count = row[genre as keyof TStackRow] as number;
                 
@@ -438,7 +403,6 @@ console.log(linearAssets)
                 }
             });
 
-            // Add Year Labels (reused from your createBars logic)
             const textGeo = new TextGeometry(row.year, { font, size: 6, depth: 2 });
             textGeo.computeBoundingBox();
             const textWidth = textGeo.boundingBox!.max.x - textGeo.boundingBox!.min.x;
@@ -447,41 +411,6 @@ console.log(linearAssets)
             scene.add(textMesh);
         });
     }
-    //     if (stackData.length === 0) return;
-    //
-    //     const barMaxWidth = Math.min(stackData.length * 80, 1400);
-    //     const unitSize = 10; // height of each unit object
-    //
-    //     const xScale = d3
-    //         .scaleBand()
-    //         .domain(stackData.map((d) => d.year))
-    //         .range([-barMaxWidth / 2, barMaxWidth / 2])
-    //         .padding(0.1);
-    //
-    //     const bandwidth = xScale.bandwidth();
-    //
-    //     // Stack unit objects per year
-    //     stackData.forEach((row) => {
-    //         const xPos = xScale(row.year)! + bandwidth / 2;
-    //         let currentY = FLOOR;
-    //
-    //         genres.forEach((genre) => {
-    //             const count = row[genre as keyof TStackRow] as number;
-    //             for (let i = 0; i < count; i++) {
-    //                 const geo = // TODO: use createGenreGeometry(genre)
-    //                 const mat = // TODO: use createGenreMaterial(genre)
-    //                 const mesh = new THREE.Mesh(geo, mat);
-    //                 // TODO: set mesh position at (xPos, currentY + unitSize / 2, 0)
-    //                 // TODO: enable castShadow and receiveShadow
-    //                 // TODO: add mesh to scene
-    //                 // TODO: advance currentY by unitSize
-    //             }
-    //         });
-    //     });
-    //
-    //     // Year labels — you can reuse the year label code from createBars() below
-    // }
-    //
     // TODO-3c: Update createLegend() to use genre shapes and materials.
 
     function createBars(scene: THREE.Scene, font: Font) {
@@ -539,27 +468,48 @@ console.log(linearAssets)
     }
     // Update your new Legend code here — see TODO-3c
     function createLegend(scene: THREE.Scene, font: Font) {
-        const legendX = 220; // Move it slightly to the side
-        const legendStartY = FLOOR + 450;
-        const spacing = 50;
+
+        const legendX = 180;
+        const legendStartY = FLOOR + 420;
+        const spacing = 40;
+        const swatchSize = 15;
 
         genres.forEach((genre, i) => {
             const y = legendStartY - i * spacing;
 
-            // Use the new genre-specific geometry and material
-            const swatchGeo = createGenreGeometry(genre);
-            const swatchMat = createGenreMaterial(genre);
+            const swatchGeo = new THREE.BoxGeometry(swatchSize, swatchSize, swatchSize);
+            const swatchMat = new THREE.MeshPhysicalMaterial({ color: genreColors[genre] });
             const swatch = new THREE.Mesh(swatchGeo, swatchMat);
+            swatch.position.set(legendX, y, 0);
+            swatch.castShadow = true;
+            scene.add(swatch);
+
+            // Use the new genre-specific geometry and material
+            //const swatchGeo = createGenreGeometry(genre);
+            //const swatchMat = createGenreMaterial(genre);
+            //const swatch = new THREE.Mesh(swatchGeo, swatchMat);
+            
+            const textGeo = new TextGeometry(genre, {
+                font: font,
+                size: 10,
+                depth: 3,
+            });
+            const textMat = new THREE.MeshPhysicalMaterial({ color: 0x000000 });
+            const textMesh = new THREE.Mesh(textGeo, textMat);
+            textMesh.position.set(legendX + 18, y - 5, 0);
+            textMesh.castShadow = true;
+            scene.add(textMesh);
+
             
             swatch.position.set(legendX, y, 0);
             swatch.scale.set(1.5, 1.5, 1.5); // Make legend items slightly larger
             swatch.castShadow = true;
             scene.add(swatch);
 
-            const textGeo = new TextGeometry(genre, { font, size: 12, depth: 3 });
-            const textMesh = new THREE.Mesh(textGeo, new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
-            textMesh.position.set(legendX + 25, y - 5, 0);
-            scene.add(textMesh);
+            //const textGeo = new TextGeometry(genre, { font, size: 12, depth: 3 });
+            //const textMesh = new THREE.Mesh(textGeo, new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
+            //textMesh.position.set(legendX + 25, y - 5, 0);
+            //scene.add(textMesh);
         });
     }
         /*
@@ -592,25 +542,21 @@ console.log(linearAssets)
     }*/
 
     function animate() {
-        const delta = clock.getDelta(); //[cite: 103]
-        const elapsed = clock.getElapsedTime(); //[cite: 104]
+        const delta = clock.getDelta(); 
+        const elapsed = clock.getElapsedTime();
 
-        if (animating) { //[cite: 104]
-            mixer.update(delta); //[cite: 104]
-
-            // Fix the Hopping Logic: No more ReferenceErrors!
+        if (animating) { 
+            mixer.update(delta); 
             hoppingModels.forEach((model) => {
                 const { baseY, hopHeight, hopSpeed, baseScaleY } = model.userData;
                 
-                // Jump logic
                 model.position.y = baseY + Math.abs(Math.sin(elapsed * hopSpeed)) * hopHeight;
                 
-                // Squish logic using the stored baseScaleY 
+                // Squish logic
                 const scaleEffect = 1 + Math.sin(elapsed * hopSpeed) * 0.7;
                 model.scale.y = baseScaleY * scaleEffect; 
             });
 
-            // Keep your Dice orbiting (the horseMorphs) [cite: 63-68]
             horseMorphs.forEach((mesh) => {
                 mesh.userData.angle += mesh.userData.orbitSpeed * delta;
                 mesh.position.x = ORBIT_RX * Math.cos(mesh.userData.angle);
@@ -618,15 +564,14 @@ console.log(linearAssets)
                 mesh.rotation.y += delta;
             });
 
-            // Keep your Linear models (the morphs) [cite: 107]
             morphs.forEach((mesh) => {
                 mesh.position.x += (mesh.userData.speed || 0) * delta;
-                mesh.rotation.y += delta * 2; //[cite: 107]
+                mesh.rotation.y += delta * 2;
                 
-                if (mesh.position.x > 1500) mesh.position.x = -1500; //[cite: 108]
+                if (mesh.position.x > 1500) mesh.position.x = -1500;
             });
         }
-        renderer.render(scene, camera); //[cite: 109]
+        renderer.render(scene, camera);
     }
 </script>
 
