@@ -7,5 +7,7 @@ import Marimekko from './Marimekko.svelte'
 export {Marimekko}
 import Scatter from './Scatter.svelte'
 import Line from './Line.svelte'
+import Scroll from './Scroll.svelte'
 
+export {Scroll}
 export {Scatter, Line}
