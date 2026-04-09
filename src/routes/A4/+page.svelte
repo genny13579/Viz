@@ -5,14 +5,10 @@
   import StoryOpen from "./StoryOpen.svelte";
   import Scrolly2D from "./Scrolly2D.svelte";
   import Scrolly3D from "./Scrolly3D.svelte";
-  import { contain } from "three/src/extras/TextureUtils.js";
-  //import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-  //let movies: TMovie[] = []; [cite: 3]
+
 
   let derivativeData: any[] = []; // The delta values for your graph
   let genreList: string[] = [];
-  //let genreLineGroups: THREE.Group[] = [];// [cite: 12]
-  let currentStep = 0; // To be bound to Scrolly3D
 
   let movies: TMovie[] = [];
 
@@ -41,9 +37,6 @@
           average_rating: Number(row.average_rating),
         };
       });
-      //const nested = d3.rollup(rawData, v => v.length, d => d.year);
-      //stackData = Array.from(nested, ([year, count]) => ({ year })); // stackData needs to be {year: , comedy: ,drama: , ...}
-      // getting genres HELP
       let minYear = new Date().getFullYear();
       let maxYear = 1900;
       for (let i = 0; i < movies.length; i++) {
@@ -90,7 +83,6 @@
         stackData[thisYear] = yearEntry;
       }
 
-      // Inside loadCsv or a reactive block
       // Calculate change from year to year
       for (let year = minYear; year < maxYear - 1; year++) {
         const current = stackData[year] || initYearEntry(year); // Default to zero counts if year is missing

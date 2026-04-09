@@ -138,7 +138,6 @@
             });
         });
 
-        // Initialize Legend Penguin Sub-context
         if (legendPenguinCanvas) {
             legendPenguinRenderer = new THREE.WebGLRenderer({
                 canvas: legendPenguinCanvas,
@@ -163,7 +162,7 @@
             gltfLoader.load("3d/penguin.glb", (gltf) => {
                 legendPenguinModel = normalizeModel(gltf.scene, 18);
                 legendPenguinModel.position.set(0, 0, 0);
-                legendPenguinModel.rotation.y = -Math.PI / 8; // slight angle
+                legendPenguinModel.rotation.y = -Math.PI / 8;
                 legendPenguinModel.userData = {
                     baseY: 0,
                     hopHeight: 8,
@@ -174,24 +173,20 @@
             });
         }
 
-        // Create the derivative graph but keep it hidden until scroll triggers it
         createDerivativeGraph(scene);
     }
 
     function normalizeModel(sceneGroup: THREE.Group, targetSize: number) {
-        // 1. Calculate the current size of the model
+
         const box = new THREE.Box3().setFromObject(sceneGroup);
         const size = box.getSize(new THREE.Vector3());
 
-        // 2. Find the largest dimension (width, height, or depth)
         const maxDim = Math.max(size.x, size.y, size.z);
         if (maxDim === 0) return sceneGroup; // Avoid division by zero
 
-        // 3. Scale the model so its largest side equals targetSize
         const scaleFactor = targetSize / maxDim;
         sceneGroup.scale.setScalar(scaleFactor);
 
-        // 4. Center the model (optional but highly recommended for rotations)
         const center = box.getCenter(new THREE.Vector3());
         sceneGroup.position.x -= center.x * scaleFactor;
         sceneGroup.position.y -= center.y * scaleFactor;
@@ -204,7 +199,7 @@
         return Object.fromEntries(
             genreList.map((genre, index) => {
                 const hue = (index / genreList.length) * 360; // Distribute hues evenly
-                return [genre, `hsl(${hue}, 70%, 50%)`]; // Saturated and bright colors
+                return [genre, `hsl(${hue}, 70%, 50%)`]; 
             }),
         );
     });
@@ -243,7 +238,7 @@
     function createDerivativeGraph(scene: THREE.Scene) {
         const xSpacing = 20;
         const yMultiplier = 50;
-        const graphBaseY = FLOOR + 300;
+        const graphBaseY = FLOOR + 400;
 
         // Create Year Labels
         const labelsGroup = new THREE.Group();
@@ -277,7 +272,7 @@
                 const pos = new THREE.Vector3(x, y, z);
                 points.push(pos);
 
-                // TODO-3a: Sphere for each data point
+
                 const sphereGeo = new THREE.SphereGeometry(4, 16, 16);
                 const sphereMat = new THREE.MeshStandardMaterial({
                     color,
@@ -291,7 +286,6 @@
                 group.add(sphere);
             });
 
-            // TODO-3b: Thick Line connecting the spheres using TubeGeometry
             const curve = new THREE.CatmullRomCurve3(points);
             const lineGeo = new THREE.TubeGeometry(
                 curve,
@@ -329,7 +323,7 @@
         const totalGroups = Math.max(1, genreLineGroups.length - 1);
         genreLineGroups.forEach((group, index) => {
             // Lines should appear one by one over progress 0 to 50
-            group.visible = progress >= (index / totalGroups) * 50;
+            group.visible = progress >= ((index / totalGroups) * 45) +2;
         });
 
         if (progress >= 50) {
@@ -425,6 +419,9 @@
         <br />
         <br />
         <p>The x axis represents the year.</p>
+         <br />
+        <br />
+        <p>As more movies have been released each year many genres see much higher fluxuations, often in the positive.</p>
         <br />
         <br />
         <p>Once progress > 50, the penguins will start hopping.</p>
